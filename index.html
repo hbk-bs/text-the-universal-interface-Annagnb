@@ -1,22 +1,319 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>p5.js Starter Project</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emoji-Orakel: Die Dragqueen der Gefühle</title>
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: #ff69b4;
+      min-height: 100vh;
+      margin: 0;
+      font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    main {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    #emoji-oracle-title {
+      text-align: center;
+      font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif;
+      margin-top: 2.2rem;
+      letter-spacing: 0.07em;
+      font-size: 2.8rem;
+      background: linear-gradient(90deg, #fff 10%, #ff69b4 50%, #b1006b 90%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 2px 10px #ff69b4) drop-shadow(0 0 2px #fff);
+      font-weight: bold;
+      text-shadow: 0 0 18px #fff, 0 0 2px #ff69b4;
+      position: relative;
+      z-index: 2;
+      padding: 0 1rem;
+      line-height: 1.1;
+      width: 100%;
+    }
+    #oracle-desc {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: #fff;
+      font-size: 1.1rem;
+      margin-bottom: 1.2rem;
+      text-shadow: 0 2px 10px #ff69b4;
+      font-family: inherit;
+      width: 100%;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      white-space: pre-line;
+    }
+    #emoji-bar {
+      margin-bottom: 2rem;
+      margin-top: 4.5rem; /* <-- Mehr Abstand nach oben */
+      text-align: center;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      max-width: 700px;
+    }
+    .emoji-btn {
+      font-size: 1.7rem;
+      background: #fff;
+      border: none;
+      border-radius: 1.5rem;
+      margin: 0 0.2rem;
+      cursor: pointer;
+      transition: box-shadow 0.2s, background 0.2s, color 0.2s, transform 0.2s, border 0.2s;
+      box-shadow: 0 0 0.5rem #ff69b4;
+      padding: 0.5rem 0.9rem;
+      font-family: inherit;
+      border: 2px solid transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .emoji-btn:focus, .emoji-btn:hover {
+      background: #ff69b4;
+      color: #fff;
+      box-shadow: 0 0 1.5rem #ff69b4;
+      transform: scale(1.15) rotate(-8deg);
+      border: 2px solid #fff;
+    }
+    .emoji-btn.selected {
+      background: #ff69b4 !important;
+      color: #fff !important;
+      box-shadow: 0 0 2.5rem #fff, 0 0 1.5rem #ff69b4;
+      transform: scale(1.18) rotate(-8deg);
+      border: 2px solid #fff !important;
+      outline: 2px solid #b1006b;
+      z-index: 2;
+    }
+    #chosen-emojis-bar {
+      position: fixed;
+      left: 50%;
+      bottom: 1.5rem;
+      transform: translateX(-50%);
+      background: #fff;
+      border-radius: 1.5rem 1.5rem 1.5rem 1.5rem;
+      box-shadow: 0 0 1.5rem #ff69b4;
+      padding: 0.7rem 2rem;
+      font-size: 2.1rem;
+      z-index: 12000;
+      display: flex;
+      gap: 0.7rem;
+      align-items: center;
+      min-width: 120px;
+      font-family: inherit;
+      color: #ff69b4;
+      font-weight: bold;
+      letter-spacing: 0.04em;
+      justify-content: center;
+      transition: bottom 0.3s;
+    }
+    #oracle-btn {
+      display: none;
+      margin: 2rem auto 0 auto;
+      background: #fff;
+      color: #ff69b4;
+      border-radius: 2rem;
+      border: none;
+      padding: 0.7rem 2rem;
+      font-size: 1.3rem;
+      cursor: pointer;
+      box-shadow: 0 0 1rem #fff5;
+      transition: background 0.2s, color 0.2s;
+      font-family: inherit;
+      font-weight: bold;
+      letter-spacing: 0.03em;
+    }
+    #oracle-btn:focus, #oracle-btn:hover {
+      background: #ff69b4;
+      color: #fff;
+    }
+    .oracle-card {
+      position: fixed;
+      left: 50vw;
+      top: 50vh;
+      transform: translate(-50%, -50%);
+      background: rgba(255,255,255,0.97);
+      color: #b1006b;
+      font-size: 1.5rem;
+      font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif;
+      padding: 2.2rem 2.5rem;
+      border-radius: 2.5rem;
+      box-shadow: 0 0 2rem #fff, 0 0 1rem #ff69b4;
+      text-align: center;
+      z-index: 20001;
+      opacity: 1;
+      max-width: 90vw;
+      max-height: 80vh;
+      overflow-y: auto;
+      transition: opacity 0.7s;
+      cursor: pointer;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      text-shadow: 0 2px 10px #fff8, 0 0 2px #ff69b4;
+      white-space: pre-line;
+    }
+    .emoji-tooltip {
+      position: absolute;
+      background: #ff69b4;
+      color: #fff; /* <-- Hier weiß einstellen */
+      border-radius: 1rem;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      box-shadow: 0 0 1rem #ff69b4;
+      pointer-events: none;
+      z-index: 10001;
+      white-space: pre-line;
+      font-family: inherit;
+      opacity: 0.97;
+      transition: opacity 0.1s;
+    }
+    @media (max-width: 600px) {
+      #emoji-bar {
+        width: 95vw !important;
+        flex-direction: column !important;
+        gap: 0.7rem !important;
+      }
+      .emoji-btn {
+        font-size: 1.3rem !important;
+        padding: 0.7rem 1.2rem !important;
+      }
+      #chosen-emojis-bar {
+        font-size: 1.3rem;
+        padding: 0.5rem 1rem;
+        bottom: 0.5rem;
+      }
+      #emoji-oracle-title { font-size: 1.2rem; padding: 0.5rem 0.7rem; }
+      #oracle-desc { font-size: 1rem; }
+    }
+    
+  </style>
 </head>
 <body>
-<main>
-	<form action="">
-		<input type="text" id="input" name="content">
-		<button id="button" name="button">Click me</button>
-	</form>
-    <div id="sketch"></div>
-    <a href="index.js">souce code</a>
-    </main>
-    <script src="lib/p5.min.js"></script>
+  <main>
+    <div id="emoji-oracle-title">✨ Emoji-Orakel: Die Dragqueen der Gefühle ✨</div>
+    <div id="oracle-desc">
+     Wähle ein Emoji und lass das Dragqueen-Orakel dir eine passende, magische Prophezeiung zaubern. Bereit für ein bisschen Glitzer und Glamour? Klick dich ins Schicksal, Honey!
+    </div>
+    <div id="emoji-bar">
+      <button class="emoji-btn" data-mood="kugel" title="Prophezeiung pur – Die Kugel spricht!">🔮</button>
+      <button class="emoji-btn" data-mood="liebe" title="Liebesdrama – Jemand denkt an dich… oder eben nicht.">💘</button>
+      <button class="emoji-btn" data-mood="macht" title="Macht & Ego – Wer ist hier der Boss? (Spoiler: Du)">👑</button>
+      <button class="emoji-btn" data-mood="verrat" title="Verrat oder Gossip – It’s giving: shady business.">🐍</button>
+      <button class="emoji-btn" data-mood="veraenderung" title="Veränderung – Etwas Großes rollt auf dich zu.">🌪️</button>
+      <button class="emoji-btn" data-mood="hoffnung" title="Hoffnung & Magie – Das Universum flirtet mit dir.">🌈</button>
+      <button class="emoji-btn" data-mood="selbstliebe" title="Selbstliebe & Styling – Zeit für ein inneres Makeover!">💄</button>
+      <button class="emoji-btn" data-mood="leidenschaft" title="Leidenschaft oder Chaos – Du brennst… aber wofür?">🔥</button>
+      <button class="emoji-btn" data-mood="maske" title="Masken & Rollen – Spielst du gerade eine Rolle?">🎭</button>
+      <button class="emoji-btn" data-mood="traeume" title="Träume & Intuition – Was flüstert dein Inneres dir?">🌙</button>
+      <button class="emoji-btn" data-mood="entscheidung" title="Entscheidungen – Links oder rechts? Hoch oder höher?">👠</button>
+      <button class="emoji-btn" data-mood="wunder" title="Wunder & Surreales – Heute wird nichts normal sein.">🦄</button>
+      <button class="emoji-btn" data-mood="schutz" title="Schutz & Warnung – Jemand will deine Energie… pass auf.">🧿</button>
+      <button class="emoji-btn" data-mood="zeit" title="Zeitdruck oder Geduld – Alles zu seiner Zeit, Darling.">🕰️</button>
+      <button class="emoji-btn" data-mood="ende" title="Ende & Neubeginn – Alte Kapitel schließen sich.">💀</button>
+      <button class="emoji-btn" data-mood="spirit" title="Spiritualität & Sinnsuche – Zeit für eine tiefere Frage.">📿</button>
+      <button class="emoji-btn" data-mood="geheimnis" title="Geheimnisse – Etwas ist im Verborgenen am Wachsen.">🕷️</button>
+      <button class="emoji-btn" data-mood="klarheit" title="Klarheit & Erleuchtung – Das Licht ist auf dem Weg.">✨</button>
+      <button class="emoji-btn" data-mood="genuss" title="Genuss oder Ablenkung? – Lebst du oder kompensierst du?">🍸</button>
+      <button class="emoji-btn" data-mood="aussenwirkung" title="Außenwirkung – Wie siehst du dich selbst – und andere dich?">📸</button>
+    </div>
+    <div id="chosen-emojis-bar"></div>
+   
+  </main>
+  <script src="index.js"></script>
+  <script>
+    const emojiButtons = document.querySelectorAll('.emoji-btn');
+    let tooltipDiv;
 
-    <script src="index.js"></script>
+    emojiButtons.forEach(btn => {
+      btn.addEventListener('mouseenter', (e) => {
+        const title = btn.getAttribute('title');
+        if (!title) return;
+        btn.setAttribute('data-old-title', title); // Speichere das Original
+        btn.removeAttribute('title'); // Entferne title, damit kein grauer Tooltip kommt
+        tooltipDiv = document.createElement('div');
+        tooltipDiv.className = 'emoji-tooltip';
+        tooltipDiv.textContent = title;
+        document.body.appendChild(tooltipDiv);
+        const rect = btn.getBoundingClientRect();
+        tooltipDiv.style.left = `${rect.left + rect.width/2 - tooltipDiv.offsetWidth/2}px`;
+        tooltipDiv.style.top = `${rect.top - 40}px`;
+      });
+      btn.addEventListener('mouseleave', () => {
+        if (tooltipDiv) {
+          tooltipDiv.remove();
+          tooltipDiv = null;
+        }
+        // title wiederherstellen
+        const oldTitle = btn.getAttribute('data-old-title');
+        if (oldTitle) {
+          btn.setAttribute('title', oldTitle);
+          btn.removeAttribute('data-old-title');
+        }
+      });
+    });
+  </script>
 </body>
 </html>
+
+<div id="backlink">
+		<style>
+			#backlink {
+				--color-accent: hsl(198, 100%, 50%);
+				position: absolute;
+				top: 8px;
+				right: 8px;
+				border: 1px dashed black;
+				background-color: white;
+				padding: 8px;
+				cursor: pointer;
+				color: black;
+				font-size: 0.8rem;
+				font-weight: bold;
+				transition: all 0.3s ease;
+				transform: rotate(-2deg) scale(0.9);
+				box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
+				a {
+					text-decoration: none;
+					color: black;
+					color: inherit;
+					text-decoration: underline;
+					background-image: linear-gradient(to right,
+							var(--color-accent) 0%,
+							var(--color-accent) 100%);
+					background-size: 0% 100%;
+					background-position: left center;
+					background-repeat: no-repeat;
+					transition: background-size 0.2s ease-in-out;
+					padding: 0.5rem;
+				}
+				a:hover {
+					background-size: 100% 100%;
+					color: white;
+				}
+
+			}
+			#backlink:hover {
+				transform: rotate(2deg) scale(1);
+			}
+		</style>
+		<a href="https://rundgang2025.qawsed.site">Back to the Rundgang 2025</a>
+	</div>
